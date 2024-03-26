@@ -1,6 +1,9 @@
 const express = require("express");
+const LoginController = require("./controllers/LoginController");
 
 const app = express();
+const sequelize = require("./models/sequelize");
+const RegistrationController = require("./controllers/RegistrationController");
 
 app.set("view engine", "ejs");
 
@@ -11,6 +14,12 @@ app.use(express.json());
 app.get("/", (req, res) => {
   return res.render("index");
 });
+
+app.get("/register", (req, res) => {
+  return res.render("registration", { message: "" });
+});
+
+app.post("/register", RegistrationController);
 
 app.post("/login", LoginController);
 
@@ -30,7 +39,7 @@ app.get("/products/:category/:id", (req, res) => {
 });
 
 app.listen(3000, function () {
-  console.log("server is running");
+  sequelize.sync();
 });
 
 // localhost:3000/profile/1
