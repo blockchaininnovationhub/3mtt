@@ -1,5 +1,6 @@
 const validator = require("validator");
 const UserModel = require("./../models/user.model");
+const crypto = require("crypto");
 
 const RegistrationController = async (req, res) => {
   const { email, password } = req.body;
@@ -16,9 +17,15 @@ const RegistrationController = async (req, res) => {
     return res.render("registration", { message: "password is not strong" });
   }
 
-  const user = UserModel.findOne({
+  const user = await UserModel.findOne({
     where: { email },
   });
+
+  const hashingAlgorithm = crypto.createHash("sha256");
+
+  hashingAlgorithm.update(password);
+
+  const hashedPassword = hashingAlgorithm.digest("hex");
 
   if (user) {
     return res.render("registration", {
@@ -27,7 +34,7 @@ const RegistrationController = async (req, res) => {
   }
 
   try {
-    await UserModel.create({ email, password });
+    await UserModel.create({ email, password: hashedPassword });
   } catch (err) {
     console.error(err);
     return res.render("registration", { message: "unexpected error" });
